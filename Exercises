@@ -1,0 +1,8 @@
+Download and install [JDK].
+Install IDE ([Netbeans IDE] or IntelliJ)
+Clone the provided [AsteroidsFX] repository from GitHub
+Open the“AsteroidsFX”project in the IDE.
+Build the project from the root folder with the Maven command :  “mvn clean install.”
+Run the project from the root folder with the Maven command :  “mvn exec:exec”
+Implement the Bullet system for the Player component.
+Implement an enemy spaceship in the project.  The enemy spaceship should shot and move randomly.

@@ -8,6 +8,7 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.PrimitiveIterator;
 import java.util.ServiceLoader;
 
@@ -16,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 public class PlayerControlSystem implements IEntityProcessingService {
 
-    private BulletSPI primaryBulletSPI;
+    private Date lastBullet = new Date();
 
     @Override
     public void process(GameData gameData, World world) {
@@ -35,17 +36,10 @@ public class PlayerControlSystem implements IEntityProcessingService {
                 player.setY(player.getY() + changeY);
             }
             if (gameData.getKeys().isDown(GameKeys.SPACE)) {
-                world.addEntity(getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData));
-
-//                if (primaryBulletSPI == null) {
-//                    primaryBulletSPI = getBulletSPIs().stream().findFirst().orElse(null);
-//                    System.out.println("primaryBulletSPI: " + primaryBulletSPI);
-//                    if (primaryBulletSPI == null) {
-//                        System.out.println("No bulletSPI found");
-//                        return;
-//                    }
+//                if (new Date().getTime() - lastBullet.getTime() > 250) {
+                    world.addEntity(getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData));
+//                    lastBullet = new Date();
 //                }
-//                world.addEntity(primaryBulletSPI.createBullet(player, gameData));
             }
             
 

@@ -91,10 +91,11 @@ public class Main extends Application {
     private void render(Pane gameWindow) {
         new AnimationTimer() {
             private long then = 0;
+            private Date lastBullet = new Date();
 
             @Override
             public void handle(long now) {
-                removeRedundantBullets();
+                removeRedundantBullets(gameWindow);
                 update();
                 draw(gameWindow);
 //                showWorldEntities();
@@ -123,10 +124,11 @@ public class Main extends Application {
 //        }
     }
 
-    private void removeRedundantBullets() {
+    private void removeRedundantBullets(Pane gameWindow) {
         /** delete bullet if out of screen **/
         for (Entity bullet : world.getEntities(Bullet.class)) {
-            if (bullet.getX() < -10 || bullet.getX() > gameData.getDisplayWidth()+10 || bullet.getY() < -10 || bullet.getY() > gameData.getDisplayHeight()+10) {
+            if (bullet.getX() < 0 || bullet.getX() > gameData.getDisplayWidth() || bullet.getY() < 0 || bullet.getY() > gameData.getDisplayHeight()) {
+                gameWindow.getChildren().remove(polygons.get(bullet));
                 polygons.remove(bullet);
                 world.removeEntity(bullet);
 //                System.out.println("Bullet: " + bullet + " is removed, because it is out of screen (" + bullet.getX() + ", " + bullet.getY() + ")");
