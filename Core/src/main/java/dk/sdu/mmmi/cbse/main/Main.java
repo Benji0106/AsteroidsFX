@@ -26,6 +26,7 @@ public class Main extends Application {
     private final GameData gameData = new GameData();
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
+    private Pane gameWindow;
 
     public static void main(String[] args) {
         launch(Main.class);
@@ -34,7 +35,7 @@ public class Main extends Application {
     @Override
     public void start(Stage window) throws Exception {
         Text text = new Text(10, 20, "Destroyed asteroids: 0");
-        Pane gameWindow = new Pane();
+        gameWindow = new Pane();
         gameWindow.setStyle("-fx-background-color: lightgray;");
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         gameWindow.getChildren().add(text);
@@ -80,7 +81,7 @@ public class Main extends Application {
         }
 
 
-        render(gameWindow);
+        render();
 
         window.setScene(scene);
         window.setTitle("ASTEROIDS");
@@ -88,18 +89,16 @@ public class Main extends Application {
 
     }
 
-    private void render(Pane gameWindow) {
+    private void render() {
         new AnimationTimer() {
             private long then = 0;
-            private Date lastBullet = new Date();
 
             @Override
             public void handle(long now) {
-                removeRedundantBullets(gameWindow);
+                removeRedundantBullets();
                 update();
-                draw(gameWindow);
+                draw();
 //                showWorldEntities();
-                then = now;
                 gameData.getKeys().update();
             }
 
@@ -116,7 +115,6 @@ public class Main extends Application {
 
         // Update
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
-//            System.out.println(entityProcessorService);
             entityProcessorService.process(gameData, world);
         }
 //        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
@@ -124,7 +122,7 @@ public class Main extends Application {
 //        }
     }
 
-    private void removeRedundantBullets(Pane gameWindow) {
+    private void removeRedundantBullets() {
         /** delete bullet if out of screen **/
         for (Entity bullet : world.getEntities(Bullet.class)) {
             if (bullet.getX() < 0 || bullet.getX() > gameData.getDisplayWidth() || bullet.getY() < 0 || bullet.getY() > gameData.getDisplayHeight()) {
@@ -145,7 +143,7 @@ public class Main extends Application {
 //        polygons = relevantPolygons;
     }
 
-    private void draw(Pane gameWindow) {
+    private void draw() {
         for (Entity entity : world.getEntities()) {
             Polygon polygon = polygons.get(entity);
             if (polygon == null) {
