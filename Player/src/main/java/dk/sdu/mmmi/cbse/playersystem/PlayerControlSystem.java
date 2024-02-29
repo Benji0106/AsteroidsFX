@@ -8,40 +8,36 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.PrimitiveIterator;
 import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
 
 
 public class PlayerControlSystem implements IEntityProcessingService {
-
-    private Date lastBullet = new Date();
-
+    private int loopsSinceLastShot = 0;
     @Override
     public void process(GameData gameData, World world) {
             
         for (Entity player : world.getEntities(Player.class)) {
+
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
                 player.setRotation(player.getRotation() - 5);                
             }
             if (gameData.getKeys().isDown(GameKeys.RIGHT)) {
                 player.setRotation(player.getRotation() + 5);                
             }
+
+            fixTurningDEG(player);
+
             if (gameData.getKeys().isDown(GameKeys.UP)) {
-                double changeX = 2*Math.cos(Math.toRadians(player.getRotation()));
-                double changeY = 2*Math.sin(Math.toRadians(player.getRotation()));
-                player.setX(player.getX() + changeX);
-                player.setY(player.getY() + changeY);
+                player.setX(player.getX() + player.getMovementSpeed()*Math.cos(Math.toRadians(player.getRotation())));
+                player.setY(player.getY() + player.getMovementSpeed()*Math.sin(Math.toRadians(player.getRotation())));
             }
-            if (gameData.getKeys().isPressed(GameKeys.SPACE)) {
-//                if (new Date().getTime() - lastBullet.getTime() > 250) {
-                    world.addEntity(getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData));
-//                    lastBullet = new Date();
-//                }
+            if ((gameData.getKeys().isDown(GameKeys.SPACE)) && loopsSinceLastShot>8) {
+                world.addEntity(getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData));
+                loopsSinceLastShot = 0;
             }
-            
+            loopsSinceLastShot++;
 
 
 
@@ -60,6 +56,14 @@ public class PlayerControlSystem implements IEntityProcessingService {
             if (player.getY() > gameData.getDisplayHeight()) {
                 player.setY(gameData.getDisplayHeight()-1);
             }
+        }
+    }
+
+    private void fixTurningDEG(Entity player) {
+        if (player.getRotation() < 0) {
+            player.setRotation(player.getRotation()+360);
+        } else if (player.getRotation() >= 360) {
+            player.setRotation(player.getRotation()-360);
         }
     }
 

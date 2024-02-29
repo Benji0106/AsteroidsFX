@@ -27,6 +27,9 @@ public class Main extends Application {
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private Pane gameWindow;
+    private Collection<? extends IGamePluginService> gamePlugins;
+    private Collection<? extends IEntityProcessingService> entityProcessors;
+    private Collection<? extends IPostEntityProcessingService> postEntityProcessors;
 
     public static void main(String[] args) {
         launch(Main.class);
@@ -34,11 +37,17 @@ public class Main extends Application {
 
     @Override
     public void start(Stage window) throws Exception {
-        Text text = new Text(10, 20, "Destroyed asteroids: 0");
+
+        gamePlugins = ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        entityProcessors = ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        postEntityProcessors = ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+
         gameWindow = new Pane();
         gameWindow.setStyle("-fx-background-color: lightgray;");
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        gameWindow.getChildren().add(text);
+
+//        Text text = new Text(10, 20, "Destroyed asteroids: 0");
+//        gameWindow.getChildren().add(text);
 
         Scene scene = new Scene(gameWindow);
         scene.setOnKeyPressed(event -> {
@@ -55,6 +64,7 @@ public class Main extends Application {
                 gameData.getKeys().setKey(GameKeys.SPACE, true);
             }
         });
+
         scene.setOnKeyReleased(event -> {
             if (event.getCode().equals(KeyCode.LEFT)) {
                 gameData.getKeys().setKey(GameKeys.LEFT, false);
@@ -80,7 +90,6 @@ public class Main extends Application {
             gameWindow.getChildren().add(polygon);
         }
 
-
         render();
 
         window.setScene(scene);
@@ -92,70 +101,36 @@ public class Main extends Application {
     private void render() {
         new AnimationTimer() {
             private long then = 0;
-
             @Override
             public void handle(long now) {
-                removeRedundantBullets();
                 update();
                 draw();
-//                showWorldEntities();
                 gameData.getKeys().update();
+                removeRedundantEntities(world.getEntities());
             }
-
         }.start();
     }
 
-    private void showWorldEntities() {
-        System.out.println("--------------------- World entities ---------------------");
-        world.getEntities().forEach(entity -> System.out.println(entity));
-        System.out.println("-------------------------- End ---------------------------");
-    }
-
-    private void update() {
-
-        // Update
-        for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
-            entityProcessorService.process(gameData, world);
-        }
-//        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
-//            postEntityProcessorService.process(gameData, world);
-//        }
-    }
-
-    private void removeRedundantBullets() {
-        /** delete bullet if out of screen **/
-        for (Entity bullet : world.getEntities(Bullet.class)) {
-            if (bullet.getX() < 0 || bullet.getX() > gameData.getDisplayWidth() || bullet.getY() < 0 || bullet.getY() > gameData.getDisplayHeight()) {
-                gameWindow.getChildren().remove(polygons.get(bullet));
-                polygons.remove(bullet);
-                world.removeEntity(bullet);
-//                System.out.println("Bullet: " + bullet + " is removed, because it is out of screen (" + bullet.getX() + ", " + bullet.getY() + ")");
+    private void removeRedundantEntities(Collection<Entity> entityList) {
+        for (Entity entity : entityList) {
+            /* delete bullet if out of screen **/
+            if (entity.isRedundant()) {
+                gameWindow.getChildren().remove(polygons.get(entity));
+                polygons.remove(entity);
+                world.removeEntity(entity);
             }
         }
-
-//        Map<Entity, Polygon> relevantPolygons = new ConcurrentHashMap<>();
-//        for (Entity entity : world.getEntities()) {
-//            Polygon polygon = polygons.get(entity);
-//            if (polygon != null) {
-//                relevantPolygons.put(entity, polygon);
-//            }
-//        }
-//        polygons = relevantPolygons;
     }
 
     private void draw() {
         for (Entity entity : world.getEntities()) {
             Polygon polygon = polygons.get(entity);
             if (polygon == null) {
-//                System.out.println("Polygon not found for entity: " + entity);
-                
                 Polygon newPolygon = new Polygon(entity.getPolygonCoordinates());
                 if (polygons.containsKey(entity)) {
                     polygons.replace(entity, newPolygon);
                 } else polygons.put(entity, newPolygon);
-//                System.out.println("Polygon created for entity: " + entity);
                 gameWindow.getChildren().add(newPolygon);
-//                System.out.println("Polygon: " + newPolygon);
             } else {
                 polygon.setTranslateX(entity.getX());
                 polygon.setTranslateY(entity.getY());
@@ -164,16 +139,29 @@ public class Main extends Application {
         }
     }
 
+    private void update() {
+        // Update
+        if (!getEntityProcessingServices().isEmpty()) {
+            for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
+                entityProcessorService.process(gameData, world);
+            }
+        }
+        if (!getPostEntityProcessingServices().isEmpty()) {
+            for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
+                postEntityProcessorService.process(gameData, world);
+            }
+        }
+    }
+
     private Collection<? extends IGamePluginService> getPluginServices() {
-//        System.out.println(ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList()));
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return gamePlugins;
     }
 
     private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return entityProcessors;
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return postEntityProcessors;
     }
 }

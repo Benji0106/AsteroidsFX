@@ -31,7 +31,7 @@ public class World {
         return entityMap.values();
     }
 
-    public <E extends Entity> List<Entity> getEntities(Class<E>... entityTypes) {
+    public <E extends Entity> List<E> getEntities(Class<E>... entityTypes) {
         List<Entity> r = new ArrayList<>();
         for (Entity e : getEntities()) {
             for (Class<E> entityType : entityTypes) {
@@ -40,7 +40,7 @@ public class World {
                 }
             }
         }
-        return r;
+        return (List<E>) r;
     }
 
     public Entity getEntity(String ID) {

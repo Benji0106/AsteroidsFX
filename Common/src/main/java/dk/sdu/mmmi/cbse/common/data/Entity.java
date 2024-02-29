@@ -11,6 +11,9 @@ public class Entity implements Serializable {
     private double x;
     private double y;
     private double rotation;
+    private boolean isRedundant;
+    private double size = 5;
+    private double movementSpeed;
 
 
     public String getID() {
@@ -49,4 +52,26 @@ public class Entity implements Serializable {
         return rotation;
     }
 
+    public void setRedundant(boolean redundant) {
+        isRedundant = redundant;
+    }
+
+    public boolean isRedundant() {
+        return isRedundant;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+    public double getSize() {
+        return size;
+    }
+
+    public double getMovementSpeed() {
+        return movementSpeed;
+    }
+
+    public void setMovementSpeed(double movementSpeed) {
+        this.movementSpeed = movementSpeed;
+    }
 }
