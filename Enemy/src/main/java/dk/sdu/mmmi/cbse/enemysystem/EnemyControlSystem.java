@@ -17,20 +17,42 @@ public class EnemyControlSystem implements IEntityProcessingService {
     private boolean inCriticalArea = false;
     private double turning = 0.5;
     private int loopsSinceLastShot = 0;
+    private static int numOfEnemies = 0;
 
     /** Main Methods **/
     @Override
     public void process(GameData gameData, World world) {
+        if (numOfEnemies == 0) {
+
+            world.addEntity(createEnemyShip(gameData));
+            numOfEnemies++;
+        }
         for (Entity enemy : world.getEntities(Enemy.class)) {
             handleTurning(enemy);
             handleMovement(enemy);
             handleShooting(enemy, gameData, world);
             handlePlacement(enemy, gameData);
+            handleIsHit(enemy);
         }
     }
 
-
     /** 1. Step Methods **/
+    public Enemy createEnemyShip(GameData gameData) {
+        Enemy enemyShip = new Enemy();
+        enemyShip.setPolygonCoordinates(-5, -5, 10, 0, -5, 5);
+        enemyShip.setRotation(Math.random() * 360);
+        enemyShip.setSize(5);
+        enemyShip.setMovementSpeed(2);
+        do {
+            enemyShip.setX((Math.random() * (gameData.getDisplayWidth()-100))+50);
+            enemyShip.setY((Math.random() * (gameData.getDisplayHeight()-100))+50);
+        } while ((enemyShip.getX() > (gameData.getDisplayWidth()/2)-100 &&
+                enemyShip.getX() < (gameData.getDisplayWidth()/2)+100) &&
+                (enemyShip.getY() > (gameData.getDisplayHeight()/2)-100 &&
+                enemyShip.getY() < (gameData.getDisplayHeight()/2)+100)
+        );
+        return enemyShip;
+    }
     private void handleTurning(Entity enemy) {
         if (!inCriticalArea) {
             randomIncreaseOrDecrease();
@@ -69,6 +91,20 @@ public class EnemyControlSystem implements IEntityProcessingService {
         checkPlacement(enemy, gameData);
         if (inCriticalArea) {
             handleCriticalRotation(enemy, gameData);
+        }
+    }
+    private void handleIsHit(Entity enemy) {
+        if (enemy.isHit()) {
+            if (enemy.getHits().contains(enemy)) {
+                enemy.getHits().remove(enemy);
+                if (enemy.getHits().isEmpty()) {
+                    enemy.setHit(false);
+                    return;
+                }
+            }
+
+            enemy.setRedundant(true);
+            numOfEnemies--;
         }
     }
 

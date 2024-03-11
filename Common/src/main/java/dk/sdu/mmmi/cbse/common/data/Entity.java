@@ -1,6 +1,8 @@
 package dk.sdu.mmmi.cbse.common.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 public class Entity implements Serializable {
@@ -14,6 +16,8 @@ public class Entity implements Serializable {
     private boolean isRedundant;
     private double size = 5;
     private double movementSpeed;
+    private boolean isHit = false;
+    private final Collection<Entity> Hits = new ArrayList<>();
 
 
     public String getID() {
@@ -73,5 +77,17 @@ public class Entity implements Serializable {
 
     public void setMovementSpeed(double movementSpeed) {
         this.movementSpeed = movementSpeed;
+    }
+
+    public boolean isHit() {
+        return isHit;
+    }
+
+    public void setHit(boolean hit) {
+        isHit = hit;
+    }
+
+    public Collection<Entity> getHits() {
+        return Hits;
     }
 }
