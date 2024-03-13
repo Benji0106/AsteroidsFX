@@ -1,5 +1,6 @@
 package dk.sdu.mmmi.cbse.enemysystem;
 
+import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -27,7 +28,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
             world.addEntity(createEnemyShip(gameData));
             numOfEnemies++;
         }
-        for (Entity enemy : world.getEntities(Enemy.class)) {
+        for (Enemy enemy : world.getEntities(Enemy.class)) {
             handleTurning(enemy);
             handleMovement(enemy);
             handleShooting(enemy, gameData, world);
@@ -77,11 +78,13 @@ public class EnemyControlSystem implements IEntityProcessingService {
             moveEnemy(enemy);
         }
     }
-    private void handleShooting(Entity enemy, GameData gameData, World world) {
+    private void handleShooting(Enemy enemy, GameData gameData, World world) {
         if (loopsSinceLastShot > 30 && Math.random() > 0.85) {
             loopsSinceLastShot = 0;
             if (getBulletSPIs().size() > 0) {
-                world.addEntity(getBulletSPIs().stream().findFirst().orElse(null).createBullet(enemy, gameData));
+                Entity newBullet = getBulletSPIs().stream().findFirst().orElse(null).createBullet(enemy, gameData);
+                enemy.addOwnBullet(newBullet);
+                world.addEntity(newBullet);
             }
         } else {
             loopsSinceLastShot++;
@@ -93,14 +96,12 @@ public class EnemyControlSystem implements IEntityProcessingService {
             handleCriticalRotation(enemy, gameData);
         }
     }
-    private void handleIsHit(Entity enemy) {
+    private void handleIsHit(Enemy enemy) {
         if (enemy.isHit()) {
-            if (enemy.getHits().contains(enemy)) {
-                enemy.getHits().remove(enemy);
-                if (enemy.getHits().isEmpty()) {
-                    enemy.setHit(false);
-                    return;
-                }
+            enemy.getHits().removeIf(enemy::ownsBullet);
+            if (enemy.getHits().isEmpty()) {
+                enemy.setHit(false);
+                return;
             }
 
             enemy.setRedundant(true);

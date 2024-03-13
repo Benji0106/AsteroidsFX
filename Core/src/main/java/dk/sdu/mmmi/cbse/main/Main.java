@@ -100,7 +100,6 @@ public class Main extends Application {
 
     private void render() {
         new AnimationTimer() {
-            private long then = 0;
             @Override
             public void handle(long now) {
                 update();

@@ -26,9 +26,10 @@ public class AsteroidControlSystem implements IEntityProcessingService {
     }
 
     private void spawnNewAsteroidsRandomly(GameData gameData, World world) {
-        if (asteroidCount < MaxAsteroidAmount && Math.random() > 0.95) {
+        if (asteroidCount < MaxAsteroidAmount && Math.random() > 0.90) {
             world.addEntity(createRandomAsteroid(gameData));
             asteroidCount++;
+//            System.out.println(asteroidCount + "Asteroid randomly spawned");
         }
     }
 
@@ -55,6 +56,7 @@ public class AsteroidControlSystem implements IEntityProcessingService {
 
             asteroid.setRedundant(true);
             asteroidCount--;
+//            System.out.println(asteroidCount + "Asteroid setRedundant (is hit)");
 
             if (asteroid.getAsteroidLevel()!=AsteroidLevel.SMALL) {
                 splitAsteroid(asteroid, world, asteroid);
@@ -66,14 +68,8 @@ public class AsteroidControlSystem implements IEntityProcessingService {
     private void splitAsteroid(Asteroid asteroid, World world, Asteroid parentAsteroid) {
         ArrayList<Asteroid> children = new ArrayList<>();
 
-        if (new Random().nextBoolean()) {
-            children.add(createChildAsteroid(asteroid));
-            children.add(createChildAsteroid(asteroid));
-            children.add(createChildAsteroid(asteroid));
-        } else {
-            children.add(createChildAsteroid(asteroid));
-            children.add(createChildAsteroid(asteroid));
-        }
+        children.add(createChildAsteroid(asteroid));
+        children.add(createChildAsteroid(asteroid));
 
         for (Asteroid child : children) {
             for (Asteroid sibling : children) {
@@ -87,6 +83,7 @@ public class AsteroidControlSystem implements IEntityProcessingService {
         for (Asteroid child : children) {
             world.addEntity(child);
             asteroidCount++;
+//            System.out.println(asteroidCount + "Child Asteroid spawned");
         }
     }
 
@@ -97,6 +94,7 @@ public class AsteroidControlSystem implements IEntityProcessingService {
                 asteroid.getY() > gameData.getDisplayHeight() + 110) {
             asteroid.setRedundant(true);
             asteroidCount--;
+//            System.out.println(asteroidCount + "Asteroid setRedundant (out of bounds)");
         }
     }
 
@@ -118,9 +116,19 @@ public class AsteroidControlSystem implements IEntityProcessingService {
 
         childAsteroid.setIsRotating(parentAsteroid.isRotating());
         childAsteroid.setRotationSpeed(parentAsteroid.getRotationSpeed()+(Math.random()*6)-3);
+        if (childAsteroid.getRotationSpeed() < Asteroid.getMinRotationSpeed()) {
+            childAsteroid.setRotationSpeed(Asteroid.getMinRotationSpeed());
+        } else if (childAsteroid.getRotationSpeed() > Asteroid.getMaxRotationSpeed()) {
+            childAsteroid.setRotationSpeed(Asteroid.getMaxRotationSpeed());
+        }
 
         childAsteroid.setMovingDirection(parentAsteroid.getMovingDirection()+(Math.random()*60)-30);
         childAsteroid.setMovementSpeed(parentAsteroid.getMovementSpeed()+(Math.random()*4)-2);
+        if (childAsteroid.getMovementSpeed() < Asteroid.getMinSpeed()) {
+            childAsteroid.setMovementSpeed(Asteroid.getMinSpeed());
+        } else if (childAsteroid.getMovementSpeed() > Asteroid.getMaxSpeed()) {
+            childAsteroid.setMovementSpeed(Asteroid.getMaxSpeed());
+        }
 
         childAsteroid.setX(parentAsteroid.getX());
         childAsteroid.setY(parentAsteroid.getY());
