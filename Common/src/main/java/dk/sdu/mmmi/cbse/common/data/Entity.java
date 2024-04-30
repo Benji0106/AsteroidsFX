@@ -90,4 +90,9 @@ public class Entity implements Serializable {
     public Collection<Entity> getHits() {
         return Hits;
     }
+
+    public void removeHit(Entity entity) {
+        Hits.remove(entity);
+    }
+
 }
