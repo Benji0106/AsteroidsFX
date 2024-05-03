@@ -1,13 +1,8 @@
 package dk.sdu.mmmi.cbse.playersystem;
 
 import dk.sdu.mmmi.cbse.common.data.Entity;
-
 import java.util.ArrayList;
 
-/**
- *
- * @author Emil
- */
 public class Player extends Entity {
 
     private ArrayList<Entity> ownBullets = new ArrayList<>();

@@ -6,7 +6,6 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 public class AsteroidControlSystem implements IEntityProcessingService {
@@ -17,11 +16,11 @@ public class AsteroidControlSystem implements IEntityProcessingService {
     @Override
     public void process(GameData gameData, World world) {
         spawnNewAsteroidsRandomly(gameData, world);
-        for (Asteroid astroid : world.getEntities(Asteroid.class)) {
-            handleAsteroidRotation(astroid);
-            handleAsteroidMovement(astroid);
-            handleAsteroidOutOfBounds(astroid, gameData);
-            handleAsteroidIsHit(astroid, world);
+        for (Asteroid asteroid : world.getEntities(Asteroid.class)) {
+            handleAsteroidRotation(asteroid);
+            handleAsteroidMovement(asteroid);
+            handleAsteroidOutOfBounds(asteroid, gameData);
+            handleAsteroidIsHit(asteroid, world);
         }
     }
 
@@ -29,7 +28,6 @@ public class AsteroidControlSystem implements IEntityProcessingService {
         if (asteroidCount < MaxAsteroidAmount && Math.random() > 0.90) {
             world.addEntity(createRandomAsteroid(gameData));
             asteroidCount++;
-//            System.out.println(asteroidCount + "Asteroid randomly spawned");
         }
     }
 
@@ -56,7 +54,6 @@ public class AsteroidControlSystem implements IEntityProcessingService {
 
             asteroid.setRedundant(true);
             asteroidCount--;
-//            System.out.println(asteroidCount + "Asteroid setRedundant (is hit)");
 
             if (asteroid.getAsteroidLevel()!=AsteroidLevel.SMALL) {
                 splitAsteroid(asteroid, world, asteroid);
@@ -83,7 +80,6 @@ public class AsteroidControlSystem implements IEntityProcessingService {
         for (Asteroid child : children) {
             world.addEntity(child);
             asteroidCount++;
-//            System.out.println(asteroidCount + "Child Asteroid spawned");
         }
     }
 
@@ -94,7 +90,6 @@ public class AsteroidControlSystem implements IEntityProcessingService {
                 asteroid.getY() > gameData.getDisplayHeight() + 110) {
             asteroid.setRedundant(true);
             asteroidCount--;
-//            System.out.println(asteroidCount + "Asteroid setRedundant (out of bounds)");
         }
     }
 

@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.enemysystem;
 
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -12,7 +11,6 @@ import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
 
-
 public class EnemyControlSystem implements IEntityProcessingService {
     private boolean moving = false;
     private boolean inCriticalArea = false;
@@ -20,7 +18,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
     private int loopsSinceLastShot = 0;
     private static int numOfEnemies = 0;
 
-    /** Main Methods **/
+    /* Main Methods **/
     @Override
     public void process(GameData gameData, World world) {
         if (numOfEnemies == 0) {
@@ -37,7 +35,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
         }
     }
 
-    /** 1. Step Methods **/
+    /* 1. Step Methods **/
     public Enemy createEnemyShip(GameData gameData) {
         Enemy enemyShip = new Enemy();
         enemyShip.setPolygonCoordinates(-5, -5, 10, 0, -5, 5);
@@ -109,8 +107,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
         }
     }
 
-
-    /** 2. Step - Turning Methods **/
+    /* 2. Step - Turning Methods **/
     private void randomIncreaseOrDecrease() {
         if (Math.random() > 0.5) {
             turning += 0.1;
@@ -144,21 +141,18 @@ public class EnemyControlSystem implements IEntityProcessingService {
         return degree;
     }
 
-
-    /** 2. Step - Movement Methods **/
+    /* 2. Step - Movement Methods **/
     private void moveEnemy(Entity enemy) {
         enemy.setY(enemy.getY() + enemy.getMovementSpeed()*Math.sin(Math.toRadians(enemy.getRotation())));
         enemy.setX(enemy.getX() + enemy.getMovementSpeed()*Math.cos(Math.toRadians(enemy.getRotation())));
     }
 
-
-    /** 2. Step - Shooting Methods **/
+    /* 2. Step - Shooting Methods **/
     private Collection<? extends BulletSPI> getBulletSPIs() {
         return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
-
-    /** 2. Step - Placement Methods **/
+    /* 2. Step - Placement Methods **/
     private void checkPlacement(Entity enemy, GameData gameData) {
         inCriticalArea = enemy.getX() < 50 || enemy.getX() > gameData.getDisplayWidth() - 50 || enemy.getY() < 50 || enemy.getY() > gameData.getDisplayHeight() - 50;
     }
@@ -170,8 +164,7 @@ public class EnemyControlSystem implements IEntityProcessingService {
         this.turning = 0.5;
     }
 
-
-    /** 3. Step - Placement Methods **/
+    /* 3. Step - Placement Methods **/
     private int calculateQuadrant(Entity enemy, GameData gameData) {
         double enemyRelativeX = (enemy.getX()) - ((double) gameData.getDisplayWidth() / 2);
         double enemyRelativeY = (enemy.getY()*(-1)) + ((double) gameData.getDisplayHeight() / 2);
@@ -234,6 +227,5 @@ public class EnemyControlSystem implements IEntityProcessingService {
     private boolean isBetween(double angle, double lowNum, double highNum) {
         return angle >= lowNum && angle <= highNum;
     }
-
 
 }

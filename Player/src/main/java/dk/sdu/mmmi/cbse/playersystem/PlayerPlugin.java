@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.playersystem;
 
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -12,7 +11,7 @@ public class PlayerPlugin implements IGamePluginService {
         world.addEntity(createPlayerShip(gameData));
     }
 
-    protected Entity createPlayerShip(GameData gameData) {
+    public Entity createPlayerShip(GameData gameData) {
         Player newPlayer = new Player();
         newPlayer.setSize(5);
         newPlayer.setMovementSpeed(2);

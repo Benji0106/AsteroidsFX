@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.main;
 
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.GameKeys;
@@ -18,7 +17,6 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -112,7 +110,6 @@ public class Main extends Application {
 
     private void removeRedundantEntities(Collection<Entity> entityList) {
         for (Entity entity : entityList) {
-            /* delete bullet if out of screen **/
             if (entity.isRedundant()) {
                 gameWindow.getChildren().remove(polygons.get(entity));
                 polygons.remove(entity);

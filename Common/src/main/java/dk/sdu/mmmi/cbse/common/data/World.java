@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
- * @author jcs
+ * The World class is a container for all entities in the game.
  */
 public class World {
 

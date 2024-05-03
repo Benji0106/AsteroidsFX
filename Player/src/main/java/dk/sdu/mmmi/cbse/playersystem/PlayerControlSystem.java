@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.playersystem;
 
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.bullet.BulletSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
@@ -14,12 +13,10 @@ import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
 
-
 public class PlayerControlSystem implements IEntityProcessingService {
 
     private int loopsWithoutPlayer = 0;
     private boolean playerIsDead = false;
-
 
     @Override
     public void process(GameData gameData, World world) {
@@ -58,8 +55,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
             }
             player.incrementLoopsSinceLastShot();
 
-
-
             if (player.getX() < 0) {
                 player.setX(1);
             }
@@ -75,8 +70,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
             if (player.getY() > gameData.getDisplayHeight()) {
                 player.setY(gameData.getDisplayHeight()-1);
             }
-
-
 
             if (player.isHit()) {
 
@@ -121,8 +114,7 @@ public class PlayerControlSystem implements IEntityProcessingService {
     }
 
     private Collection<? extends BulletSPI> getBulletSPIs() {
-//        System.out.println("BulletSPIs");
-//        System.out.println(ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList()));
         return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
+
 }
