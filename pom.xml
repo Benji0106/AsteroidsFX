@@ -17,7 +17,7 @@
         <module>Bullet</module>
         <module>CommonBullet</module>
         <module>Enemy</module>
-        <module>Asteroid</module>
+<!--        <module>Asteroid</module>-->
         <module>CollisionDetector</module>
     </modules>
     <properties>
@@ -85,7 +85,7 @@
 <!--                        - - - Debugger - - -                 -->
 <!--                        <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=127.0.0.1:8000</argument>-->
                         <argument>--module=Core/dk.sdu.mmmi.cbse.main.Main</argument>
-                        <argument>--add-modules javafx.graphics</argument>
+                        <argument>--add-modules javafx.graphics,javafx.controls</argument>
                     </arguments>
                 </configuration>
             </plugin>

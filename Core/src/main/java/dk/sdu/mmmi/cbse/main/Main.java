@@ -8,6 +8,12 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 
+import java.lang.module.ModuleReference;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleDescriptor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
@@ -25,20 +31,45 @@ public class Main extends Application {
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private Pane gameWindow;
+    private static ModuleLayer layer;
+
     private Collection<? extends IGamePluginService> gamePlugins;
     private Collection<? extends IEntityProcessingService> entityProcessors;
     private Collection<? extends IPostEntityProcessingService> postEntityProcessors;
 
     public static void main(String[] args) {
+
+        Path pathToPlugins = Paths.get("plugins");
+
+        ModuleFinder pluginsFinder = ModuleFinder.of(pathToPlugins);
+
+        List<String> pluginNames = pluginsFinder
+                .findAll()
+                .stream()
+                .map(ModuleReference::descriptor)
+                .map(ModuleDescriptor::name)
+                .collect(toList());
+
+        Configuration pluginConfig = ModuleLayer
+                .boot()
+                .configuration()
+                .resolve(pluginsFinder, ModuleFinder.of(), pluginNames);
+
+        layer = ModuleLayer
+                .boot()
+                .defineModulesWithOneLoader(pluginConfig, ClassLoader.getSystemClassLoader());
+
         launch(Main.class);
     }
 
     @Override
     public void start(Stage window) throws Exception {
 
-        gamePlugins = ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-        entityProcessors = ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-        postEntityProcessors = ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        gamePlugins = ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        entityProcessors = ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        postEntityProcessors = ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+
+
 
         gameWindow = new Pane();
         gameWindow.setStyle("-fx-background-color: lightgray;");
