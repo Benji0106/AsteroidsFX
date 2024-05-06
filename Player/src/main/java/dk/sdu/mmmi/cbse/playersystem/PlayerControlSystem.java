@@ -35,23 +35,19 @@ public class PlayerControlSystem implements IEntityProcessingService {
         for (Player player : world.getEntities(Player.class)) {
 
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
-                player.setRotation(player.getRotation() - 5);                
+                turnLeft(player);
             }
             if (gameData.getKeys().isDown(GameKeys.RIGHT)) {
-                player.setRotation(player.getRotation() + 5);                
+                turnRight(player);
             }
 
             fixTurningDEG(player);
 
             if (gameData.getKeys().isDown(GameKeys.UP)) {
-                player.setX(player.getX() + player.getMovementSpeed()*Math.cos(Math.toRadians(player.getRotation())));
-                player.setY(player.getY() + player.getMovementSpeed()*Math.sin(Math.toRadians(player.getRotation())));
+                moveForward(player);
             }
             if ((gameData.getKeys().isDown(GameKeys.SPACE)) && player.getLoopsSinceLastShot() >8) {
-                Entity newBullet = getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData);
-                player.addOwnBullet(newBullet);
-                world.addEntity(newBullet);
-                player.resetLoopsSinceLastShot();
+                shoot(gameData, world, player);
             }
             player.incrementLoopsSinceLastShot();
 
@@ -92,6 +88,26 @@ public class PlayerControlSystem implements IEntityProcessingService {
             }
 
         }
+    }
+
+    private void shoot(GameData gameData, World world, Player player) {
+        Entity newBullet = getBulletSPIs().stream().findFirst().orElse(null).createBullet(player, gameData);
+        player.addOwnBullet(newBullet);
+        world.addEntity(newBullet);
+        player.resetLoopsSinceLastShot();
+    }
+
+    protected void moveForward(Player player) {
+        player.setX(player.getX() + player.getMovementSpeed()*Math.cos(Math.toRadians(player.getRotation())));
+        player.setY(player.getY() + player.getMovementSpeed()*Math.sin(Math.toRadians(player.getRotation())));
+    }
+
+    protected void turnRight(Player player) {
+        player.setRotation(player.getRotation() + 5);
+    }
+
+    protected void turnLeft(Player player) {
+        player.setRotation(player.getRotation() - 5);
     }
 
     private void respawnPlayer(GameData gameData, World world) {
